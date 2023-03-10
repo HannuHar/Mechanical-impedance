@@ -22,15 +22,19 @@ class InductionMotorDriveWoMech(InductionMotorDrive):
 
     """
 
-    def __init__(self, motor=None, conv=None):
+    def __init__(self, motor=None, conv=None, w_M0:float=0, f_vib:float=0, M_vib:float=0):
         self.motor = motor
         self.conv = conv
         self.t0 = 0  # Initial time
+        self.w_M0 = w_M0 # Steady-state speed
+        self.f_vib = f_vib # Vibration frequency in Hertz
+        self.M_vib = M_vib # Vibration magnitude rad/s
+
+
         # Store the solution in these lists
         self.data = Bunch()  # Stores the solution data
         self.data.t, self.data.q = [], []
         self.data.psi_ss, self.data.psi_rs = [], []
-        self.w_M0 = 0
         
 
     def get_initial_values(self):
@@ -82,8 +86,9 @@ class InductionMotorDriveWoMech(InductionMotorDrive):
         """
         # Unpack the states
         # print("w_M0: " + str(self.w_M0))
+        A = np.min([self.M_vib*t*(self.f_vib/10),self.M_vib])
         psi_ss, psi_rs = x
-        w_M = self.w_M0 + 0*np.sin(2*np.pi*1*t)
+        w_M = self.w_M0 + A*np.sin(2*np.pi*self.f_vib*t)
         # Interconnections: outputs for computing the state derivatives
         u_ss = self.conv.ac_voltage(self.conv.q, self.conv.u_dc0)
         # State derivatives plus the outputs for interconnections
@@ -117,8 +122,8 @@ class InductionMotorDriveWoMech(InductionMotorDrive):
         # Some useful variables
         self.data.i_ss, _, self.data.tau_M = self.motor.magnetic(
             self.data.psi_ss, self.data.psi_rs)
-        
-        self.data.w_M = self.w_M0 + 0*np.sin(2*np.pi*10*self.data.t)
+        A = np.minimum(self.M_vib*self.data.t*(self.f_vib/10),self.M_vib+self.data.t*0)
+        self.data.w_M = self.w_M0 + A*np.sin(2*np.pi*self.f_vib*self.data.t)
         
         # self.data.u_ss = self.conv.ac_voltage(self.data.q, self.conv.u_dc0)
 
