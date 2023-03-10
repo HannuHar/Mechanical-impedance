@@ -1,15 +1,15 @@
 # Add motulator into PATH
-import os
-import sys
-current_dir = os.getcwd()
-motulator_path = os.path.join(current_dir, 'motulator')
-sys.path.append(motulator_path)
+# import os
+# import sys
+# current_dir = os.getcwd()
+# motulator_path = os.path.join(current_dir, 'motulator')
+# sys.path.append(motulator_path)
 
 
 # Motulator
 import motulator as mt
 # Delete imported modules
-del sys, os
+# del sys, os
 
 from im_drive_wo_mech import InductionMotorDriveWoMech
 
